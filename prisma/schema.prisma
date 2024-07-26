@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,6 +12,11 @@ model user {
   name   String      @db.VarChar(99)
   email  String      @db.VarChar(99)
   status user_status
+}
+
+model note {
+  id      Int    @id @default(autoincrement())
+  message String @db.VarChar(99)
 }
 
 enum user_status {
