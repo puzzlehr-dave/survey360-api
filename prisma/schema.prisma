@@ -8,10 +8,16 @@ datasource db {
 }
 
 model user {
-  id     Int         @id @default(autoincrement())
-  name   String      @db.VarChar(99)
-  email  String      @db.VarChar(99)
-  status user_status
+  id         Int    @id @default(autoincrement())
+  first_name String @db.VarChar(99)
+  last_name  String @db.VarChar(99)
+  email      String @unique @db.VarChar(99)
+  role_id    Int    @db.Integer
+}
+
+model role {
+  id        Int    @id @default(autoincrement())
+  role_name String @db.VarChar(99)
 }
 
 model note {
@@ -19,7 +25,8 @@ model note {
   message String @db.VarChar(99)
 }
 
-enum user_status {
-  active
-  inactive
+model verification_code {
+  id    Int    @id @default(autoincrement())
+  email String @unique @db.VarChar(99)
+  code  Int    @db.Integer
 }

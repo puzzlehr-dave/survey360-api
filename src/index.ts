@@ -1,10 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 import express, { Request, Response } from "express";
+import auth from "./routes/auth";
 const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+/**
+ * Routes
+ */
+
+// Authentication
+app.use(auth);
 
 app.post("/notes", async function (req: Request, res: Response) {
   const { message } = req.body;
