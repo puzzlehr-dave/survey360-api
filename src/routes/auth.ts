@@ -42,10 +42,16 @@ async function sendEmail({
 auth.post("/auth/sendVerificationCode", async function (req, res) {
   const { email } = req.body;
 
-  // TODO: check if user exists in user table; otherwise we'll be sending codes to non registered people haha
-  const verification = await prisma.verification_code.findUnique({
+  const doesUserExist = await prisma.user.findUnique({
     where: { email },
   });
+
+  if (!doesUserExist) {
+    return res.json({
+      successful: false,
+      errorMessage: "Oops, we can't find that user!",
+    });
+  }
 
   const code = generateFourDigitCode();
 
@@ -70,9 +76,9 @@ auth.post("/auth/sendVerificationCode", async function (req, res) {
 
   // respond to client
   if (emailSuccessful) {
-    res.status(200).json({ successful: true });
+    return res.json({ successful: true });
   } else {
-    res.status(500).json({
+    return res.json({
       successful: false,
       errorMessage: "Cannot send email. Contact developer to investigate.",
     });
@@ -88,7 +94,7 @@ auth.post("/auth/validateVerificationCode", async function (req, res) {
     });
 
     if (!verification) {
-      res.status(400).json({
+      res.json({
         successful: false,
         errorMessage: "Verification code not found.",
       });
@@ -96,16 +102,19 @@ auth.post("/auth/validateVerificationCode", async function (req, res) {
     }
 
     if (verification.code === parseInt(verificationCode)) {
-      res.status(200).json({ successful: true });
+      const user = await prisma.user.findFirst({
+        where: { email },
+      });
+      res.json({ successful: true, data: { user } });
     } else {
-      res.status(200).json({
+      res.json({
         successful: false,
         errorMessage: "Invalid verification code.",
       });
     }
   } catch (e) {
     console.error("Error validating verification code: ", e);
-    res.status(500).json({
+    res.json({
       successful: false,
       errorMessage: "Internal server error.",
     });
